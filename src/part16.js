@@ -3,7 +3,9 @@ let pointerLocked = false;
 const keys = {};
 let velocityY = 0;
 let onGround = false;
-const player = new THREE.Vector3(0, 6.7, 18);
+// Spawn in the central plaza, facing the monumental north gate (-Z).
+const SPAWN_POSITION = new THREE.Vector3(2, 5.15, 2);
+const player = SPAWN_POSITION.clone();
 const eyeHeight = 1.65;
 const moveSpeed = 5.5;
 const gravity = 17;
