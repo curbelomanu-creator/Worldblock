@@ -1,5 +1,5 @@
 canvas.addEventListener('mousedown',e=>{
-  if(!pointerLocked) return;
+  if(!pointerLocked && !mobileControlsActive) return;
 
   ray.setFromCamera(new THREE.Vector2(0,0),camera);
 
