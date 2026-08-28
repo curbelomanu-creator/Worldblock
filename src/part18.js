@@ -72,7 +72,9 @@ function updatePlayer(dt){
   }
 
   if(player.y < -10){
-    player.set(0, 6.7, 18);
+    player.copy(SPAWN_POSITION);
+    yaw = 0;
+    pitch = 0;
     velocityY = 0;
   }
 
