@@ -1,5 +1,7 @@
 let yaw = 0, pitch = 0;
 let pointerLocked = false;
+const mobileControlsActive = window.WORLDBLOCK_MOBILE === true;
+const mobileMove = {x:0,y:0};
 const keys = {};
 let velocityY = 0;
 let onGround = false;
@@ -43,6 +45,13 @@ function updateHUD(){
   const livingTrolls=trolls.filter(t=>t.userData.alive).length;
   const counts={horse:0,lion:0,elephant:0};
   for(const a of animals) if(counts[a.userData.species]!==undefined) counts[a.userData.species]++;
+
+  if(mobileControlsActive){
+    hud.innerHTML=`<strong>${slotNames[selectedIndex]}</strong><br>🐎 ${counts.horse} · 🦁 ${counts.lion} · 🐘 ${counts.elephant}<br>Aldeanos ${living} · Trolls ${livingTrolls}`;
+    window.WorldblockMobile?.refresh?.();
+    return;
+  }
+
   const horseHint=mountedHorse?'E: desmontar caballo':'E: montar caballo cercano';
   const leashHint=leashedHorse?'Click con lazo: soltar caballo':'Click con lazo: enlazar caballo';
   hud.innerHTML=`WASD: mover · Mouse: mirar<br>${mountedHorse?'Caballo: WASD · Space: saltar':'Espacio: saltar'} · ${horseHint}<br>${selectedItem==='lasso'?leashHint:'6: lazo'} · 7: corral/cerca<br>ESC: liberar mouse<br>Click izq: ${selectedItem==='sword'?'usar espada':(selectedItem==='lasso'?'usar lazo':'romper bloque')}<br>Click der: ${['sword','lasso'].includes(selectedItem)?'—':'colocar bloque'}<br>1-7: seleccionar<br><strong>Seleccionado:</strong> ${slotNames[selectedIndex]}<br><strong>Fauna cargada:</strong> 🐎 ${counts.horse} · 🦁 ${counts.lion} · 🐘 ${counts.elephant}<br><strong>Aldeanos:</strong> ${living} · <strong>Trolls:</strong> ${livingTrolls}<br><strong>Chunks:</strong> ${loadedChunks.size} · <strong>Seed:</strong> ${WORLD_SEED}`;
@@ -82,18 +91,20 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('keyup',e=> keys[e.code] = false);
 
 document.addEventListener('mousemove',e=>{
-  if(!pointerLocked) return;
+  if(!pointerLocked || mobileControlsActive) return;
   yaw -= e.movementX * .0022;
   pitch -= e.movementY * .0022;
   pitch = Math.max(-Math.PI/2 + .01, Math.min(Math.PI/2 - .01, pitch));
 });
 
 document.addEventListener('pointerlockchange',()=>{
+  if(mobileControlsActive) return;
   pointerLocked = document.pointerLockElement === canvas;
   document.getElementById('overlay').style.display = pointerLocked ? 'none' : 'flex';
 });
 
 document.addEventListener('pointerlockerror',()=>{
+  if(mobileControlsActive) return;
   pointerLocked = false;
   document.getElementById('overlay').style.display = 'flex';
   const status=document.getElementById('loadStatus');
@@ -103,7 +114,9 @@ document.addEventListener('pointerlockerror',()=>{
   }
 });
 
-canvas.addEventListener('click',()=>{ if(!pointerLocked) canvas.requestPointerLock(); });
+canvas.addEventListener('click',()=>{
+  if(!mobileControlsActive && !pointerLocked) canvas.requestPointerLock();
+});
 canvas.addEventListener('contextmenu',e=> e.preventDefault());
 
 const ray = new THREE.Raycaster();
