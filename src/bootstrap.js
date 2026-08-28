@@ -1,6 +1,9 @@
 const canvas = document.getElementById('game');
 const startButton = document.getElementById('start');
 const panel = document.getElementById('panel');
+const TOTAL_PARTS = 19;
+const touchCapable = matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+window.WORLDBLOCK_MOBILE = touchCapable;
 
 const status = document.createElement('p');
 status.id = 'loadStatus';
@@ -22,7 +25,7 @@ startButton.disabled = true;
 startButton.textContent = 'CARGANDO MUNDO…';
 startButton.style.opacity = '0.6';
 startButton.style.cursor = 'wait';
-setStatus('Preparando motor 3D…');
+setStatus(touchCapable ? 'Preparando controles táctiles…' : 'Preparando motor 3D…');
 
 window.addEventListener('error', (event) => {
   if(currentPart && event.filename && event.filename.includes('/src/part')){
@@ -40,7 +43,7 @@ window.addEventListener('unhandledrejection', (event) => {
 async function loadPart(src, index){
   currentPart = src;
   partRuntimeError = null;
-  setStatus(`Cargando mundo… ${index}/18`);
+  setStatus(`Cargando mundo… ${index}/${TOTAL_PARTS}`);
 
   await new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -59,17 +62,17 @@ async function boot(){
     const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.179.1/build/three.module.js');
     window.THREE = THREE;
 
-    for(let i = 1; i <= 18; i++){
+    for(let i = 1; i <= TOTAL_PARTS; i++){
       await loadPart(`./src/part${i}.js`, i);
     }
 
     currentPart = '';
     ready = true;
     startButton.disabled = false;
-    startButton.textContent = 'ENTRAR AL MUNDO';
+    startButton.textContent = touchCapable ? 'JUGAR EN EL TELÉFONO' : 'ENTRAR AL MUNDO';
     startButton.style.opacity = '1';
     startButton.style.cursor = 'pointer';
-    setStatus('✓ Mundo listo');
+    setStatus(touchCapable ? '✓ Controles táctiles listos' : '✓ Mundo listo');
   }catch(error){
     console.error('Worldblock boot error:', error);
     ready = false;
@@ -84,6 +87,13 @@ async function boot(){
 startButton.addEventListener('click', () => {
   if(!ready) return;
   canvas.focus?.();
+
+  if(touchCapable){
+    document.getElementById('overlay').style.display = 'none';
+    window.WorldblockMobile?.start?.();
+    return;
+  }
+
   try{
     const result = canvas.requestPointerLock();
     if(result && typeof result.catch === 'function'){
