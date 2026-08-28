@@ -1,13 +1,14 @@
 const canvas = document.getElementById('game');
-const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+const mobilePerformanceMode = window.WORLDBLOCK_MOBILE === true;
+const renderer = new THREE.WebGLRenderer({canvas, antialias:!mobilePerformanceMode});
+renderer.setPixelRatio(Math.min(devicePixelRatio, mobilePerformanceMode ? 1.0 : 1.5));
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = mobilePerformanceMode ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb);
-scene.fog = new THREE.Fog(0x87ceeb, 34, 62);
+scene.fog = new THREE.Fog(0x87ceeb, mobilePerformanceMode ? 26 : 34, mobilePerformanceMode ? 48 : 62);
 
 const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 200);
 scene.add(camera);
@@ -91,7 +92,7 @@ scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.8);
 sun.position.set(24, 40, 18);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(mobilePerformanceMode ? 1024 : 2048, mobilePerformanceMode ? 1024 : 2048);
 sun.shadow.camera.left = -70;
 sun.shadow.camera.right = 70;
 sun.shadow.camera.top = 70;
@@ -137,7 +138,7 @@ const key = (x,y,z) => `${x},${y},${z}`;
 // Procedural world streaming: only nearby chunks exist in memory.
 const WORLD_SEED = 20260828;
 const CHUNK_SIZE = 16;
-const CHUNK_RADIUS = 3;
+const CHUNK_RADIUS = mobilePerformanceMode ? 2 : 3;
 const CHUNK_DEPTH = 4;
 const loadedChunks = new Map();
 const chunkRaycastMeshes = [];
