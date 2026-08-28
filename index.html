@@ -45,6 +45,7 @@
       border:0;
       box-shadow: inset 0 -4px rgba(0,0,0,.18);
     }
+    button:disabled { cursor:wait; opacity:.6; }
     #crosshair {
       position:fixed;
       left:50%; top:50%;
@@ -115,7 +116,7 @@
   </style>
 </head>
 <body>
-  <canvas id="game"></canvas>
+  <canvas id="game" tabindex="0"></canvas>
   <div id="crosshair"></div>
   <div id="hud"></div>
   <div id="hotbar">
@@ -134,7 +135,7 @@
       <h1>WORLDBLOCK</h1>
       <p>Explora un pueblo amurallado más detallado, con mercado, pozo, faroles, estandartes y un mundo procedural con fauna escasa.</p>
       <p>Usa 5 para la espada, 6 para el lazo, 7 para construir cercas y E para montar o desmontar caballos. Los caballos también saltan con Space.</p>
-      <button id="start">ENTRAR AL MUNDO</button>
+      <button id="start" disabled>CARGANDO MUNDO…</button>
     </div>
   </div>
 
