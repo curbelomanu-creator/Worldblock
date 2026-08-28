@@ -91,7 +91,16 @@ document.addEventListener('pointerlockchange',()=>{
   document.getElementById('overlay').style.display = pointerLocked ? 'none' : 'flex';
 });
 
-document.getElementById('start').onclick = ()=> canvas.requestPointerLock();
+document.addEventListener('pointerlockerror',()=>{
+  pointerLocked = false;
+  document.getElementById('overlay').style.display = 'flex';
+  const status=document.getElementById('loadStatus');
+  if(status){
+    status.textContent='No se pudo capturar el mouse. Haz click nuevamente.';
+    status.style.color='#ff9b9b';
+  }
+});
+
 canvas.addEventListener('click',()=>{ if(!pointerLocked) canvas.requestPointerLock(); });
 canvas.addEventListener('contextmenu',e=> e.preventDefault());
 
